@@ -84,13 +84,17 @@ func (s *Server) Serve() error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	var opts []grpc.ServerOption
+	// var opts []grpc.ServerOption
 
 	// Output some debugging
 	log.Println("Starting server...")
 
 	// Setup the gRPC server
-	g := grpc.NewServer(opts...)
+	// unaryInterceptor checks AUTH
+	g := grpc.NewServer(
+		grpc.UnaryInterceptor(unaryInterceptor),
+		grpc.StreamInterceptor(streamInterceptor),
+	)
 	proto.RegisterUserServiceServer(g, s)
 
 	// start the grpc server on its own port
@@ -113,6 +117,7 @@ func (s *Server) Serve() error {
 	}
 
 	mux.Handle("/", gw)
+	mux.HandleFunc("/auth", GetToken)
 
 	// Start the http getaway mux server
 	log.Println("Getaway Mux Server started on ", httpAddr)
