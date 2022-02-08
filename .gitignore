@@ -23,3 +23,5 @@ bin/
 /.users/keys/
 .DS_Store
 target/
+
+.env
